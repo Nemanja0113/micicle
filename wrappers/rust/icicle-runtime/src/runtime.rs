@@ -58,6 +58,10 @@ pub fn load_backend_from_env_or_default() -> Result<(), eIcicleError> {
     unsafe { icicle_load_backend_from_env_or_default().wrap() }
 }
 
+pub fn load_backend_from_env_or_second() -> Result<(), eIcicleError> {
+    unsafe { icicle_load_backend_from_env_or_second().wrap() }
+}
+
 pub fn load_backend(path: &str) -> Result<(), eIcicleError> {
     let c_path = CString::new(path).unwrap();
     unsafe { icicle_load_backend(c_path.as_ptr(), true).wrap() }
