@@ -29,6 +29,18 @@ extern "C" eIcicleError icicle_load_backend(const char* path, bool is_recursive)
 extern "C" eIcicleError icicle_load_backend_from_env_or_default();
 
 /**
+ * @brief Attempts to load the backend from either the environment variable or the default install directory.
+ *
+ * This function first checks if the environment variable `ICICLE_BACKEND_INSTALL_DIR_SECOND` is set and points to an existing
+ * directory. If so, it attempts to load the backend from that directory. If the environment variable is not set or the
+ * directory does not exist, it falls back to the default directory (`/opt/icicle/backend`). If neither option is
+ * successful, the function returns an error.
+ *
+ * @return eIcicleError The status of the backend loading operation, indicating success or failure.
+ */
+ extern "C" eIcicleError icicle_load_backend_from_env_or_second();
+
+/**
  * @brief Set active device for thread
  *
 

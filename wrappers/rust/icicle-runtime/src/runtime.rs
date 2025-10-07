@@ -10,6 +10,7 @@ pub type IcicleStreamHandle = *mut c_void;
 extern "C" {
     fn icicle_load_backend(path: *const c_char, is_recursive: bool) -> eIcicleError;
     fn icicle_load_backend_from_env_or_default() -> eIcicleError;
+    fn icicle_load_backend_from_env_or_second() -> eIcicleError;
     fn icicle_set_device(device: &Device) -> eIcicleError;
     fn icicle_set_default_device(device: &Device) -> eIcicleError;
     fn icicle_get_active_device(device: &mut Device) -> eIcicleError;
