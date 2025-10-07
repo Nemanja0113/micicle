@@ -27,9 +27,13 @@ public:
   void _register(const std::string& deviceType, FuncType func)
   {
     if (apiMap.find(deviceType) != apiMap.end()) {
-      THROW_ICICLE_ERR(
-        eIcicleError::INVALID_DEVICE,
-        std::string("Attempting to register a duplicate ") + api_name + " operation for device type: " + deviceType);
+      // THROW_ICICLE_ERR(
+      //   eIcicleError::INVALID_DEVICE,
+      //   std::string("Attempting to register a duplicate ") + api_name + " operation for device type: " + deviceType);
+      // Allow re-registration (overwrite) instead of throwing error
+      // This enables loading alternative backend implementations at runtime
+      ICICLE_LOG_WARNING << "Re-registering " << api_name << " factory for device type: " << deviceType;
+      ICICLE_LOG_WARNING << "Previous factory will be replaced";
     }
     apiMap[deviceType] = func;
   }
@@ -79,9 +83,13 @@ public:
   void _register(const std::string& deviceType, std::shared_ptr<FactoryType> factory)
   {
     if (apiMap.find(deviceType) != apiMap.end()) {
-      THROW_ICICLE_ERR(
-        eIcicleError::INVALID_DEVICE,
-        std::string("Attempting to register a duplicate ") + api_name + " operation for device type: " + deviceType);
+      // THROW_ICICLE_ERR(
+      //   eIcicleError::INVALID_DEVICE,
+      //   std::string("Attempting to register a duplicate ") + api_name + " operation for device type: " + deviceType);
+      // Allow re-registration (overwrite) instead of throwing error
+      // This enables loading alternative backend implementations at runtime
+      ICICLE_LOG_WARNING << "Re-registering " << api_name << " factory for device type: " << deviceType;
+      ICICLE_LOG_WARNING << "Previous factory will be replaced";
     }
     apiMap[deviceType] = factory;
   }
