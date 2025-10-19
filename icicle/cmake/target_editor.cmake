@@ -8,6 +8,7 @@ function(handle_field TARGET)
       src/matrix_ops.cpp
       src/program/program_c_api.cpp
       src/symbol/symbol_api.cpp
+      src/permutation_ops.cpp
   )
 endfunction()
 
