@@ -147,6 +147,7 @@ macro_rules! impl_permutation_ops {
       $field_config:ident
     ) => {
         mod $field_prefix_ident {
+            use super::{$field, $field_config};
             use icicle_core::permutation_ops::{PermutationData, PermutationConfig};
             use icicle_runtime::{errors::eIcicleError, memory::HostOrDeviceSlice};
 
