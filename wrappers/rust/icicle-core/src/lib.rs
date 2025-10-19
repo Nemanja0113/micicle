@@ -16,6 +16,7 @@ pub mod sumcheck;
 pub mod symbol;
 pub mod vec_ops;
 pub mod gate_ops;
+pub mod permutation_ops;
 
 #[doc(hidden)]
 pub mod tests;
