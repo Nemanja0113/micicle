@@ -2,6 +2,7 @@ use icicle_core::{
     curve::{Affine, Curve, Projective},
     field::{Field, MontgomeryConvertibleField},
     impl_curve, impl_field, impl_scalar_field,
+    impl_permutation_ops,
     traits::{FieldConfig, FieldImpl, GenerateRandom},
     vec_ops::VecOpsConfig,
 };
@@ -14,6 +15,7 @@ pub(crate) const G2_BASE_LIMBS: usize = 16;
 
 impl_scalar_field!("bn254", bn254_sf, SCALAR_LIMBS, ScalarField, ScalarCfg);
 impl_field!("bn254_base_field", BASE_LIMBS, BaseField, BaseCfg);
+impl_permutation_ops!("bn254", bn254_perm, ScalarField, ScalarCfg);
 impl_curve!("bn254", bn254, CurveCfg, ScalarField, BaseField, G1Affine, G1Projective);
 
 #[cfg(not(feature = "no_g2"))]
