@@ -112,6 +112,7 @@ impl<T> PermutationData<T> {
     }
 }
 
+#[doc(hidden)]
 pub trait PermutationOps<F: FieldImpl> {
     fn permutation_evaluation(
         perm_data: &PermutationData<F>,
@@ -146,8 +147,8 @@ macro_rules! impl_permutation_ops {
       $field_config:ident
     ) => {
         mod $field_prefix_ident {
-            use crate::permutation_ops::{PermutationData, PermutationConfig, HostOrDeviceSlice};
-            use icicle_runtime::errors::eIcicleError;
+            use icicle_core::permutation_ops::{PermutationData, PermutationConfig};
+            use icicle_runtime::{errors::eIcicleError, memory::HostOrDeviceSlice};
 
             extern "C" {
                 #[link_name = concat!($field_prefix, "_permutation_evaluation")]
@@ -159,16 +160,16 @@ macro_rules! impl_permutation_ops {
             }
         }
 
-        impl PermutationOps<$field> for $field_config {
+        impl icicle_core::permutation_ops::PermutationOps<$field> for $field_config {
             fn permutation_evaluation(
-                perm_data: &PermutationData<$field>,
-                config: &PermutationConfig,
-                results: &mut (impl HostOrDeviceSlice<$field> + ?Sized),
-            ) -> Result<(), eIcicleError> {
+                perm_data: &icicle_core::permutation_ops::PermutationData<$field>,
+                config: &icicle_core::permutation_ops::PermutationConfig,
+                results: &mut (impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+            ) -> Result<(), icicle_runtime::errors::eIcicleError> {
                 unsafe {
                     $field_prefix_ident::permutation_evaluation_ffi(
-                        perm_data as *const PermutationData<$field>,
-                        config as *const PermutationConfig,
+                        perm_data as *const icicle_core::permutation_ops::PermutationData<$field>,
+                        config as *const icicle_core::permutation_ops::PermutationConfig,
                         results.as_mut_ptr(),
                     )
                     .wrap()
