@@ -120,6 +120,23 @@ pub trait PermutationOps<F: FieldImpl> {
     ) -> Result<(), eIcicleError>;
 }
 
+// Standalone function that delegates to the trait method
+pub fn permutation_evaluation<F>(
+    perm_data: &PermutationData<F>,
+    config: &PermutationConfig,
+    results: &mut (impl HostOrDeviceSlice<F> + ?Sized),
+) -> Result<(), eIcicleError>
+where
+    F: FieldImpl,
+    <F as FieldImpl>::Config: PermutationOps<F>,
+{
+    <<F as FieldImpl>::Config as PermutationOps<F>>::permutation_evaluation(
+        perm_data,
+        config,
+        results,
+    )
+}
+
 #[macro_export]
 macro_rules! impl_permutation_ops {
     (
@@ -160,13 +177,3 @@ macro_rules! impl_permutation_ops {
         }
     };
 }
-
-// Implement for BN254 (the field used in halo2)
-use crate::field::Field;
-
-#[cfg(feature = "bn254")]
-pub type ScalarField = Field<8, crate::curve::ScalarCfg>;
-
-#[cfg(feature = "bn254")]
-impl_permutation_ops!("bn254", bn254_impl, ScalarField, crate::curve::ScalarCfg);
-
