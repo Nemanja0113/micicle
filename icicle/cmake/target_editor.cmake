@@ -9,6 +9,7 @@ function(handle_field TARGET)
       src/program/program_c_api.cpp
       src/symbol/symbol_api.cpp
       src/permutation_ops.cpp
+      src/expression_eval.cpp
   )
 endfunction()
 
