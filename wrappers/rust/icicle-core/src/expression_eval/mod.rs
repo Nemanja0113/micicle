@@ -137,7 +137,7 @@ macro_rules! impl_expression_eval {
             use super::{$field, $field_config};
 
             extern "C" {
-                #[link_name = concat!($field_prefix, "expression_evaluation")]
+                #[link_name = concat!($field_prefix, "_expression_evaluation")]
                 fn expression_evaluation_ffi(
                     eval_data: *const ExpressionEvalData<$field>,
                     cfg: *const ExpressionEvalConfig,
