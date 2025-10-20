@@ -48,6 +48,7 @@ pub struct PermutationData<T> {
     pub extended_len: u32,
     pub num_sets: u32,
     pub chunk_len: u32,
+    pub num_perm_cosets: u32,  // Total number of permutation cosets
     pub num_fixed: u32,
     pub num_advice: u32,
     pub num_instance: u32,
@@ -76,6 +77,7 @@ impl<T> PermutationData<T> {
         extended_len: u32,
         num_sets: u32,
         chunk_len: u32,
+        num_perm_cosets: u32,
         num_fixed: u32,
         num_advice: u32,
         num_instance: u32,
@@ -102,6 +104,7 @@ impl<T> PermutationData<T> {
             extended_len,
             num_sets,
             chunk_len,
+            num_perm_cosets,
             num_fixed,
             num_advice,
             num_instance,
