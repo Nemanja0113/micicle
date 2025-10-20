@@ -95,6 +95,8 @@ impl<T> ExpressionEvalData<T> {
     }
 }
 
+use crate::traits::FieldImpl;
+
 /// Trait for expression evaluation operations
 #[doc(hidden)]
 pub trait ExpressionEvalOps<F> {
@@ -112,9 +114,10 @@ pub fn expression_evaluation<F>(
     results: &mut (impl icicle_runtime::memory::HostOrDeviceSlice<F> + ?Sized),
 ) -> Result<(), eIcicleError>
 where
-    <F as icicle_runtime::memory::HostOrDeviceSlice<F>>::Scalar: ExpressionEvalOps<F>,
+    F: FieldImpl,
+    <F as FieldImpl>::Config: ExpressionEvalOps<F>,
 {
-    <<F as icicle_runtime::memory::HostOrDeviceSlice<F>>::Scalar as ExpressionEvalOps<F>>::expression_evaluation(
+    <<F as FieldImpl>::Config as ExpressionEvalOps<F>>::expression_evaluation(
         eval_data, cfg, results,
     )
 }
