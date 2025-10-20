@@ -17,6 +17,7 @@ pub mod symbol;
 pub mod vec_ops;
 pub mod gate_ops;
 pub mod permutation_ops;
+pub mod expression_eval;
 
 #[doc(hidden)]
 pub mod tests;
