@@ -27,6 +27,7 @@ namespace icicle {
     const uint8_t* value_types;
     const uint32_t* value_indices;
     uint32_t domain_size;
+    uint32_t column_len;  // Length of each column
     uint32_t num_fixed;
     uint32_t num_advice;
     uint32_t num_instance;

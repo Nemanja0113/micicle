@@ -29,10 +29,12 @@ namespace icicle {
     const T* gamma;
     const T* y;
     const T* delta_start;
+    const T* delta_const;
     const T* extended_omega;
     uint32_t extended_len;
     uint32_t num_sets;
     uint32_t chunk_len;
+    uint32_t num_perm_cosets;  // Total number of permutation cosets
     uint32_t num_fixed;
     uint32_t num_advice;
     uint32_t num_instance;
