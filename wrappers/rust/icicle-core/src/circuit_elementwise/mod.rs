@@ -1,225 +1,202 @@
-use crate::traits::FieldLike;
-use crate::errors::IcicleError;
+use crate::traits::FieldImpl;
+use icicle_runtime::errors::eIcicleError;
 use std::ffi::c_void;
 
 /// Configuration for circuit element-wise operations
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct CircuitElementwiseConfig {
-    pub stream: *mut c_void,
-    pub is_a_on_device: bool,
-    pub is_b_on_device: bool,
-    pub is_result_on_device: bool,
+    pub stream_handle: *mut c_void,
+    pub is_data_on_device: bool,
     pub is_async: bool,
-    pub ext: *mut c_void,
 }
 
 impl Default for CircuitElementwiseConfig {
     fn default() -> Self {
         Self {
-            stream: std::ptr::null_mut(),
-            is_a_on_device: false,
-            is_b_on_device: false,
-            is_result_on_device: false,
+            stream_handle: std::ptr::null_mut(),
+            is_data_on_device: false,
             is_async: false,
-            ext: std::ptr::null_mut(),
         }
     }
 }
 
-/// External CUDA function declarations
-extern "C" {
-    fn circuit_elementwise_add(
-        a: *const u8,
-        b: *const u8,
-        size: u64,
-        config: *const CircuitElementwiseConfig,
-        result: *mut u8,
-    ) -> u32;
-
-    fn circuit_elementwise_sub(
-        a: *const u8,
-        b: *const u8,
-        size: u64,
-        config: *const CircuitElementwiseConfig,
-        result: *mut u8,
-    ) -> u32;
-
-    fn circuit_elementwise_mult(
-        a: *const u8,
-        b: *const u8,
-        size: u64,
-        config: *const CircuitElementwiseConfig,
-        result: *mut u8,
-    ) -> u32;
-
-    fn circuit_elementwise_inverse(
-        a: *const u8,
-        size: u64,
-        config: *const CircuitElementwiseConfig,
-        result: *mut u8,
-    ) -> u32;
-}
-
-/// Circuit element-wise operations for BN254 field
-pub struct CircuitElementwiseOps;
-
-impl CircuitElementwiseOps {
-    /// Adds two field element vectors element-wise using GPU acceleration
-    pub fn add<F: FieldLike>(
+/// Circuit element-wise operations trait
+pub trait CircuitElementwiseOps<F: FieldImpl> {
+    fn add(
         a: &[F],
         b: &[F],
         config: CircuitElementwiseConfig,
-    ) -> Result<Vec<F>, IcicleError> {
-        if a.len() != b.len() {
-            return Err(IcicleError::InvalidInput("Vector lengths must match".to_string()));
-        }
+    ) -> Result<Vec<F>, eIcicleError>;
 
-        let size = a.len() as u64;
-        let mut result = vec![F::zero(); a.len()];
-
-        unsafe {
-            let cuda_error = circuit_elementwise_add(
-                a.as_ptr() as *const u8,
-                b.as_ptr() as *const u8,
-                size,
-                &config as *const CircuitElementwiseConfig,
-                result.as_mut_ptr() as *mut u8,
-            );
-
-            if cuda_error != 0 {
-                return Err(IcicleError::CudaError(cuda_error));
-            }
-        }
-
-        Ok(result)
-    }
-
-    /// Subtracts two field element vectors element-wise using GPU acceleration
-    pub fn sub<F: FieldLike>(
+    fn sub(
         a: &[F],
         b: &[F],
         config: CircuitElementwiseConfig,
-    ) -> Result<Vec<F>, IcicleError> {
-        if a.len() != b.len() {
-            return Err(IcicleError::InvalidInput("Vector lengths must match".to_string()));
-        }
+    ) -> Result<Vec<F>, eIcicleError>;
 
-        let size = a.len() as u64;
-        let mut result = vec![F::zero(); a.len()];
-
-        unsafe {
-            let cuda_error = circuit_elementwise_sub(
-                a.as_ptr() as *const u8,
-                b.as_ptr() as *const u8,
-                size,
-                &config as *const CircuitElementwiseConfig,
-                result.as_mut_ptr() as *mut u8,
-            );
-
-            if cuda_error != 0 {
-                return Err(IcicleError::CudaError(cuda_error));
-            }
-        }
-
-        Ok(result)
-    }
-
-    /// Multiplies two field element vectors element-wise using GPU acceleration
-    pub fn mult<F: FieldLike>(
+    fn mult(
         a: &[F],
         b: &[F],
         config: CircuitElementwiseConfig,
-    ) -> Result<Vec<F>, IcicleError> {
-        if a.len() != b.len() {
-            return Err(IcicleError::InvalidInput("Vector lengths must match".to_string()));
-        }
+    ) -> Result<Vec<F>, eIcicleError>;
 
-        let size = a.len() as u64;
-        let mut result = vec![F::zero(); a.len()];
-
-        unsafe {
-            let cuda_error = circuit_elementwise_mult(
-                a.as_ptr() as *const u8,
-                b.as_ptr() as *const u8,
-                size,
-                &config as *const CircuitElementwiseConfig,
-                result.as_mut_ptr() as *mut u8,
-            );
-
-            if cuda_error != 0 {
-                return Err(IcicleError::CudaError(cuda_error));
-            }
-        }
-
-        Ok(result)
-    }
-
-    /// Computes multiplicative inverse of field elements element-wise using GPU acceleration
-    pub fn inverse<F: FieldLike>(
+    fn inverse(
         a: &[F],
         config: CircuitElementwiseConfig,
-    ) -> Result<Vec<F>, IcicleError> {
-        let size = a.len() as u64;
-        let mut result = vec![F::zero(); a.len()];
+    ) -> Result<Vec<F>, eIcicleError>;
+}
 
-        unsafe {
-            let cuda_error = circuit_elementwise_inverse(
-                a.as_ptr() as *const u8,
-                size,
-                &config as *const CircuitElementwiseConfig,
-                result.as_mut_ptr() as *mut u8,
-            );
+/// Macro to implement circuit element-wise operations for specific fields
+#[macro_export]
+macro_rules! impl_circuit_elementwise_ops {
+    (
+        $field_prefix:literal,
+        $field_prefix_ident:ident,
+        $field:ident,
+        $field_config:ident
+    ) => {
+        mod $field_prefix_ident {
+            use super::{$field, $field_config};
+            use icicle_core::circuit_elementwise::{CircuitElementwiseConfig, CircuitElementwiseOps};
+            use icicle_runtime::{errors::eIcicleError, memory::HostOrDeviceSlice};
 
-            if cuda_error != 0 {
-                return Err(IcicleError::CudaError(cuda_error));
+            extern "C" {
+                #[link_name = concat!($field_prefix, "_circuit_elementwise_add")]
+                pub(crate) fn circuit_elementwise_add_ffi(
+                    a: *const u8,
+                    b: *const u8,
+                    size: u64,
+                    config: *const CircuitElementwiseConfig,
+                    result: *mut u8,
+                ) -> eIcicleError;
+
+                #[link_name = concat!($field_prefix, "_circuit_elementwise_sub")]
+                pub(crate) fn circuit_elementwise_sub_ffi(
+                    a: *const u8,
+                    b: *const u8,
+                    size: u64,
+                    config: *const CircuitElementwiseConfig,
+                    result: *mut u8,
+                ) -> eIcicleError;
+
+                #[link_name = concat!($field_prefix, "_circuit_elementwise_mult")]
+                pub(crate) fn circuit_elementwise_mult_ffi(
+                    a: *const u8,
+                    b: *const u8,
+                    size: u64,
+                    config: *const CircuitElementwiseConfig,
+                    result: *mut u8,
+                ) -> eIcicleError;
+
+                #[link_name = concat!($field_prefix, "_circuit_elementwise_inverse")]
+                pub(crate) fn circuit_elementwise_inverse_ffi(
+                    a: *const u8,
+                    size: u64,
+                    config: *const CircuitElementwiseConfig,
+                    result: *mut u8,
+                ) -> eIcicleError;
             }
         }
 
-        Ok(result)
-    }
+        impl icicle_core::circuit_elementwise::CircuitElementwiseOps<$field> for $field_config {
+            fn add(
+                a: &[$field],
+                b: &[$field],
+                config: icicle_core::circuit_elementwise::CircuitElementwiseConfig,
+            ) -> Result<Vec<$field>, icicle_runtime::errors::eIcicleError> {
+                if a.len() != b.len() {
+                    return Err(eIcicleError::InvalidArgument);
+                }
+
+                let size = a.len() as u64;
+                let mut result = vec![$field::zero(); a.len()];
+
+                unsafe {
+                    $field_prefix_ident::circuit_elementwise_add_ffi(
+                        a.as_ptr() as *const u8,
+                        b.as_ptr() as *const u8,
+                        size,
+                        &config as *const CircuitElementwiseConfig,
+                        result.as_mut_ptr() as *mut u8,
+                    )
+                    .wrap()
+                }?;
+
+                Ok(result)
+            }
+
+            fn sub(
+                a: &[$field],
+                b: &[$field],
+                config: icicle_core::circuit_elementwise::CircuitElementwiseConfig,
+            ) -> Result<Vec<$field>, icicle_runtime::errors::eIcicleError> {
+                if a.len() != b.len() {
+                    return Err(eIcicleError::InvalidArgument);
+                }
+
+                let size = a.len() as u64;
+                let mut result = vec![$field::zero(); a.len()];
+
+                unsafe {
+                    $field_prefix_ident::circuit_elementwise_sub_ffi(
+                        a.as_ptr() as *const u8,
+                        b.as_ptr() as *const u8,
+                        size,
+                        &config as *const CircuitElementwiseConfig,
+                        result.as_mut_ptr() as *mut u8,
+                    )
+                    .wrap()
+                }?;
+
+                Ok(result)
+            }
+
+            fn mult(
+                a: &[$field],
+                b: &[$field],
+                config: icicle_core::circuit_elementwise::CircuitElementwiseConfig,
+            ) -> Result<Vec<$field>, icicle_runtime::errors::eIcicleError> {
+                if a.len() != b.len() {
+                    return Err(eIcicleError::InvalidArgument);
+                }
+
+                let size = a.len() as u64;
+                let mut result = vec![$field::zero(); a.len()];
+
+                unsafe {
+                    $field_prefix_ident::circuit_elementwise_mult_ffi(
+                        a.as_ptr() as *const u8,
+                        b.as_ptr() as *const u8,
+                        size,
+                        &config as *const CircuitElementwiseConfig,
+                        result.as_mut_ptr() as *mut u8,
+                    )
+                    .wrap()
+                }?;
+
+                Ok(result)
+            }
+
+            fn inverse(
+                a: &[$field],
+                config: icicle_core::circuit_elementwise::CircuitElementwiseConfig,
+            ) -> Result<Vec<$field>, icicle_runtime::errors::eIcicleError> {
+                let size = a.len() as u64;
+                let mut result = vec![$field::zero(); a.len()];
+
+                unsafe {
+                    $field_prefix_ident::circuit_elementwise_inverse_ffi(
+                        a.as_ptr() as *const u8,
+                        size,
+                        &config as *const CircuitElementwiseConfig,
+                        result.as_mut_ptr() as *mut u8,
+                    )
+                    .wrap()
+                }?;
+
+                Ok(result)
+            }
+        }
+    };
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::traits::FieldLike;
-    use halo2curves::bn256::Fr as Fp;
-
-    #[test]
-    fn test_elementwise_add() {
-        let a = vec![Fp::from(1), Fp::from(2), Fp::from(3)];
-        let b = vec![Fp::from(4), Fp::from(5), Fp::from(6)];
-        let config = CircuitElementwiseConfig::default();
-
-        let result = CircuitElementwiseOps::add(&a, &b, config).unwrap();
-        let expected = vec![Fp::from(5), Fp::from(7), Fp::from(9)];
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn test_elementwise_sub() {
-        let a = vec![Fp::from(5), Fp::from(7), Fp::from(9)];
-        let b = vec![Fp::from(1), Fp::from(2), Fp::from(3)];
-        let config = CircuitElementwiseConfig::default();
-
-        let result = CircuitElementwiseOps::sub(&a, &b, config).unwrap();
-        let expected = vec![Fp::from(4), Fp::from(5), Fp::from(6)];
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn test_elementwise_mult() {
-        let a = vec![Fp::from(2), Fp::from(3), Fp::from(4)];
-        let b = vec![Fp::from(5), Fp::from(6), Fp::from(7)];
-        let config = CircuitElementwiseConfig::default();
-
-        let result = CircuitElementwiseOps::mult(&a, &b, config).unwrap();
-        let expected = vec![Fp::from(10), Fp::from(18), Fp::from(28)];
-
-        assert_eq!(result, expected);
-    }
-}
-

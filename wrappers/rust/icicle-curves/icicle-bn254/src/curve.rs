@@ -4,6 +4,7 @@ use icicle_core::{
     impl_curve, impl_field, impl_scalar_field,
     impl_permutation_ops,
     impl_expression_eval,
+    impl_circuit_elementwise_ops,
     traits::{FieldConfig, FieldImpl, GenerateRandom},
     vec_ops::VecOpsConfig,
 };
@@ -23,6 +24,9 @@ impl_permutation_ops!("bn254", bn254_perm, ScalarField, ScalarCfg);
 
 // Implement expression evaluation for BN254 scalar field
 impl_expression_eval!("bn254", bn254_expr, ScalarField, ScalarCfg);
+
+// Implement circuit element-wise operations for BN254 scalar field
+impl_circuit_elementwise_ops!("bn254", bn254_circuit, ScalarField, ScalarCfg);
 
 #[cfg(not(feature = "no_g2"))]
 impl_field!("bn254_g2_base_field", G2_BASE_LIMBS, G2BaseField, G2BaseCfg);
