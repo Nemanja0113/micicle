@@ -4,10 +4,10 @@
 namespace icicle {
 
   /*********************************** CIRCUIT ELEMENTWISE OPERATIONS ************************/
-  ICICLE_DISPATCHER_INST(CircuitElementwiseDispatcher, circuit_elementwise_add, circuitElementwiseAddImpl);
-  ICICLE_DISPATCHER_INST(CircuitElementwiseDispatcher, circuit_elementwise_sub, circuitElementwiseSubImpl);
-  ICICLE_DISPATCHER_INST(CircuitElementwiseDispatcher, circuit_elementwise_mult, circuitElementwiseMultImpl);
-  ICICLE_DISPATCHER_INST(CircuitElementwiseDispatcher, circuit_elementwise_inverse, circuitElementwiseInverseImpl);
+  ICICLE_DISPATCHER_INST(CircuitElementwiseAddDispatcher, circuit_elementwise_add, circuitElementwiseAddImpl);
+  ICICLE_DISPATCHER_INST(CircuitElementwiseSubDispatcher, circuit_elementwise_sub, circuitElementwiseSubImpl);
+  ICICLE_DISPATCHER_INST(CircuitElementwiseMultDispatcher, circuit_elementwise_mult, circuitElementwiseMultImpl);
+  ICICLE_DISPATCHER_INST(CircuitElementwiseInverseDispatcher, circuit_elementwise_inverse, circuitElementwiseInverseImpl);
 
   extern "C" eIcicleError CONCAT_EXPAND(ICICLE_FFI_PREFIX, circuit_elementwise_add)(
     const scalar_t* a,
@@ -16,7 +16,7 @@ namespace icicle {
     const CircuitElementwiseConfig* config,
     scalar_t* result)
   {
-      return CircuitElementwiseDispatcher::execute(
+      return CircuitElementwiseAddDispatcher::execute(
         a,
         b,
         size,
@@ -32,7 +32,7 @@ namespace icicle {
     const CircuitElementwiseConfig* config,
     scalar_t* result)
   {
-      return CircuitElementwiseDispatcher::execute(
+      return CircuitElementwiseSubDispatcher::execute(
         a,
         b,
         size,
@@ -48,7 +48,7 @@ namespace icicle {
     const CircuitElementwiseConfig* config,
     scalar_t* result)
   {
-      return CircuitElementwiseDispatcher::execute(
+      return CircuitElementwiseMultDispatcher::execute(
         a,
         b,
         size,
@@ -63,7 +63,7 @@ namespace icicle {
     const CircuitElementwiseConfig* config,
     scalar_t* result)
   {
-      return CircuitElementwiseDispatcher::execute(
+      return CircuitElementwiseInverseDispatcher::execute(
         a,
         size,
         *config,
