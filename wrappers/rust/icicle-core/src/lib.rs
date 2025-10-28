@@ -18,6 +18,7 @@ pub mod vec_ops;
 pub mod gate_ops;
 pub mod permutation_ops;
 pub mod expression_eval;
+pub mod circuit_elementwise;
 
 #[doc(hidden)]
 pub mod tests;
