@@ -170,18 +170,14 @@ macro_rules! impl_circuit_elementwise_ops {
                     result: &mut (impl HostOrDeviceSlice<$field> + ?Sized),
                 ) -> Result<(), eIcicleError> {
                     unsafe {
-                        let error = circuit_elementwise_add_ffi(
+                        circuit_elementwise_add_ffi(
                             a.as_ptr(),
                             b.as_ptr(),
                             a.len() as u64,
                             config as *const CircuitElementwiseConfig,
                             result.as_mut_ptr(),
-                        );
-                        if error == eIcicleError::IcicleSuccess {
-                            Ok(())
-                        } else {
-                            Err(error)
-                        }
+                        )
+                        .wrap()
                     }
                 }
 
@@ -192,18 +188,14 @@ macro_rules! impl_circuit_elementwise_ops {
                     result: &mut (impl HostOrDeviceSlice<$field> + ?Sized),
                 ) -> Result<(), eIcicleError> {
                     unsafe {
-                        let error = circuit_elementwise_sub_ffi(
+                        circuit_elementwise_sub_ffi(
                             a.as_ptr(),
                             b.as_ptr(),
                             a.len() as u64,
                             config as *const CircuitElementwiseConfig,
                             result.as_mut_ptr(),
-                        );
-                        if error == eIcicleError::IcicleSuccess {
-                            Ok(())
-                        } else {
-                            Err(error)
-                        }
+                        )
+                        .wrap()
                     }
                 }
 
@@ -214,18 +206,14 @@ macro_rules! impl_circuit_elementwise_ops {
                     result: &mut (impl HostOrDeviceSlice<$field> + ?Sized),
                 ) -> Result<(), eIcicleError> {
                     unsafe {
-                        let error = circuit_elementwise_mult_ffi(
+                        circuit_elementwise_mult_ffi(
                             a.as_ptr(),
                             b.as_ptr(),
                             a.len() as u64,
                             config as *const CircuitElementwiseConfig,
                             result.as_mut_ptr(),
-                        );
-                        if error == eIcicleError::IcicleSuccess {
-                            Ok(())
-                        } else {
-                            Err(error)
-                        }
+                        )
+                        .wrap()
                     }
                 }
 
@@ -235,17 +223,13 @@ macro_rules! impl_circuit_elementwise_ops {
                     result: &mut (impl HostOrDeviceSlice<$field> + ?Sized),
                 ) -> Result<(), eIcicleError> {
                     unsafe {
-                        let error = circuit_elementwise_inverse_ffi(
+                        circuit_elementwise_inverse_ffi(
                             a.as_ptr(),
                             a.len() as u64,
                             config as *const CircuitElementwiseConfig,
                             result.as_mut_ptr(),
-                        );
-                        if error == eIcicleError::IcicleSuccess {
-                            Ok(())
-                        } else {
-                            Err(error)
-                        }
+                        )
+                        .wrap()
                     }
                 }
             }
