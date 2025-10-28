@@ -10,6 +10,7 @@ function(handle_field TARGET)
       src/symbol/symbol_api.cpp
       src/permutation_ops.cpp
       src/expression_eval.cpp
+      src/circuit_elementwise.cpp
   )
 endfunction()
 
