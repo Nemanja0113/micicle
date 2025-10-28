@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cuda.h>
-#include <cuda_runtime.h>
-
+#include <cstdint>
 #include "icicle/errors.h"
 #include "icicle/runtime.h"
 #include "icicle/fields/field.h"
@@ -38,10 +36,10 @@ static CircuitElementwiseConfig default_circuit_elementwise_config() {
  * @param size Size of the vectors.
  * @param config Configuration for the operation.
  * @param result Output vector.
- * @return cudaError_t CUDA error code.
+ * @return eIcicleError Error code.
  */
 template <typename T>
-cudaError_t circuit_elementwise_add(
+eIcicleError circuit_elementwise_add(
     const T* a, const T* b, uint64_t size, 
     const CircuitElementwiseConfig& config, T* result);
 
@@ -54,10 +52,10 @@ cudaError_t circuit_elementwise_add(
  * @param size Size of the vectors.
  * @param config Configuration for the operation.
  * @param result Output vector.
- * @return cudaError_t CUDA error code.
+ * @return eIcicleError Error code.
  */
 template <typename T>
-cudaError_t circuit_elementwise_sub(
+eIcicleError circuit_elementwise_sub(
     const T* a, const T* b, uint64_t size, 
     const CircuitElementwiseConfig& config, T* result);
 
@@ -70,10 +68,10 @@ cudaError_t circuit_elementwise_sub(
  * @param size Size of the vectors.
  * @param config Configuration for the operation.
  * @param result Output vector.
- * @return cudaError_t CUDA error code.
+ * @return eIcicleError Error code.
  */
 template <typename T>
-cudaError_t circuit_elementwise_mult(
+eIcicleError circuit_elementwise_mult(
     const T* a, const T* b, uint64_t size, 
     const CircuitElementwiseConfig& config, T* result);
 
@@ -85,10 +83,10 @@ cudaError_t circuit_elementwise_mult(
  * @param size Size of the vector.
  * @param config Configuration for the operation.
  * @param result Output vector.
- * @return cudaError_t CUDA error code.
+ * @return eIcicleError Error code.
  */
 template <typename T>
-cudaError_t circuit_elementwise_inverse(
+eIcicleError circuit_elementwise_inverse(
     const T* a, uint64_t size, 
     const CircuitElementwiseConfig& config, T* result);
 
