@@ -5,6 +5,7 @@ use icicle_core::{
     impl_permutation_ops,
     impl_expression_eval,
     impl_circuit_elementwise_ops,
+    circuit_elementwise::{CircuitElementwiseConfig, CircuitElementwiseOps},
     traits::{FieldConfig, FieldImpl, GenerateRandom},
     vec_ops::VecOpsConfig,
 };
