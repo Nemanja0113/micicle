@@ -59,5 +59,16 @@ namespace icicle {
     T* results
   );
 
+  template <typename T>
+  eIcicleError permutation_denominator_accumulate(
+    T* modified,
+    const T* column,
+    const T* permuted,
+    uint32_t len,
+    T beta,
+    T gamma,
+    const PermutationConfig& config
+  );
+
 } // namespace icicle
 
