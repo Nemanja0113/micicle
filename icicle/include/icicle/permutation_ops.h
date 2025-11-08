@@ -70,5 +70,17 @@ namespace icicle {
     const PermutationConfig& config
   );
 
+  template <typename T>
+  eIcicleError permutation_numerator_accumulate(
+    T* modified,
+    const T* column,
+    uint32_t len,
+    T beta,
+    T gamma,
+    T delta_base,
+    T omega,
+    const PermutationConfig& config
+  );
+
 } // namespace icicle
 

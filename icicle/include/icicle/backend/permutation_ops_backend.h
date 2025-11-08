@@ -44,5 +44,26 @@ namespace icicle {
     }();                                                                                               \
   }
 
+  using permutationNumeratorImpl = std::function<eIcicleError(
+    const Device& device,
+    scalar_t* modified,
+    const scalar_t* column,
+    uint32_t len,
+    scalar_t beta,
+    scalar_t gamma,
+    scalar_t delta_base,
+    scalar_t omega,
+    const PermutationConfig& config)>;
+
+  void register_permutation_numerator(const std::string& deviceType, permutationNumeratorImpl impl);
+
+#define REGISTER_PERMUTATION_NUMERATOR_BACKEND(DEVICE_TYPE, FUNC)                                      \
+  namespace {                                                                                          \
+    static bool UNIQUE(_reg_permutation_numerator) = []() -> bool {                                    \
+      register_permutation_numerator(DEVICE_TYPE, FUNC);                                               \
+      return true;                                                                                     \
+    }();                                                                                               \
+  }
+
 } // namespace icicle
 
