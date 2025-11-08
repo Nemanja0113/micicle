@@ -30,5 +30,93 @@ namespace icicle {
     );
   }
 
+  ICICLE_DISPATCHER_INST(PermutationDenominatorDispatcher, permutation_denominator, permutationDenominatorImpl);
+
+  extern "C" eIcicleError CONCAT_EXPAND(ICICLE_FFI_PREFIX, permutation_denominator)(
+    scalar_t* modified,
+    const scalar_t* column,
+    const scalar_t* permuted,
+    uint32_t len,
+    scalar_t beta,
+    scalar_t gamma,
+    const PermutationConfig* config)
+  {
+    return PermutationDenominatorDispatcher::execute(
+      modified,
+      column,
+      permuted,
+      len,
+      beta,
+      gamma,
+      *config
+    );
+  }
+
+  eIcicleError permutation_denominator_accumulate(
+    scalar_t* modified,
+    const scalar_t* column,
+    const scalar_t* permuted,
+    uint32_t len,
+    scalar_t beta,
+    scalar_t gamma,
+    const PermutationConfig& config)
+  {
+    return CONCAT_EXPAND(ICICLE_FFI_PREFIX, permutation_denominator)(
+      modified,
+      column,
+      permuted,
+      len,
+      beta,
+      gamma,
+      &config
+    );
+  }
+
+  ICICLE_DISPATCHER_INST(PermutationNumeratorDispatcher, permutation_numerator, permutationNumeratorImpl);
+
+  extern "C" eIcicleError CONCAT_EXPAND(ICICLE_FFI_PREFIX, permutation_numerator)(
+    scalar_t* modified,
+    const scalar_t* column,
+    uint32_t len,
+    scalar_t beta,
+    scalar_t gamma,
+    scalar_t delta_base,
+    scalar_t omega,
+    const PermutationConfig* config)
+  {
+    return PermutationNumeratorDispatcher::execute(
+      modified,
+      column,
+      len,
+      beta,
+      gamma,
+      delta_base,
+      omega,
+      *config
+    );
+  }
+
+  eIcicleError permutation_numerator_accumulate(
+    scalar_t* modified,
+    const scalar_t* column,
+    uint32_t len,
+    scalar_t beta,
+    scalar_t gamma,
+    scalar_t delta_base,
+    scalar_t omega,
+    const PermutationConfig& config)
+  {
+    return CONCAT_EXPAND(ICICLE_FFI_PREFIX, permutation_numerator)(
+      modified,
+      column,
+      len,
+      beta,
+      gamma,
+      delta_base,
+      omega,
+      &config
+    );
+  }
+
 } // namespace icicle
 

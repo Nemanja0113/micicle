@@ -125,6 +125,27 @@ pub trait PermutationOps<F: FieldImpl> {
         config: &PermutationConfig,
         results: &mut (impl HostOrDeviceSlice<F> + ?Sized),
     ) -> Result<(), eIcicleError>;
+
+    fn permutation_denominator_accumulate(
+        modified: &mut (impl HostOrDeviceSlice<F> + ?Sized),
+        column: &(impl HostOrDeviceSlice<F> + ?Sized),
+        permuted: &(impl HostOrDeviceSlice<F> + ?Sized),
+        beta: &F,
+        gamma: &F,
+        len: u32,
+        config: &PermutationConfig,
+    ) -> Result<(), eIcicleError>;
+
+    fn permutation_numerator_accumulate(
+        modified: &mut (impl HostOrDeviceSlice<F> + ?Sized),
+        column: &(impl HostOrDeviceSlice<F> + ?Sized),
+        beta: &F,
+        gamma: &F,
+        delta_base: &F,
+        omega: &F,
+        len: u32,
+        config: &PermutationConfig,
+    ) -> Result<(), eIcicleError>;
 }
 
 // Standalone function that delegates to the trait method
@@ -141,6 +162,56 @@ where
         perm_data,
         config,
         results,
+    )
+}
+
+pub fn permutation_denominator_accumulate<F>(
+    modified: &mut (impl HostOrDeviceSlice<F> + ?Sized),
+    column: &(impl HostOrDeviceSlice<F> + ?Sized),
+    permuted: &(impl HostOrDeviceSlice<F> + ?Sized),
+    beta: &F,
+    gamma: &F,
+    len: u32,
+    config: &PermutationConfig,
+) -> Result<(), eIcicleError>
+where
+    F: FieldImpl,
+    <F as FieldImpl>::Config: PermutationOps<F>,
+{
+    <<F as FieldImpl>::Config as PermutationOps<F>>::permutation_denominator_accumulate(
+        modified,
+        column,
+        permuted,
+        beta,
+        gamma,
+        len,
+        config,
+    )
+}
+
+pub fn permutation_numerator_accumulate<F>(
+    modified: &mut (impl HostOrDeviceSlice<F> + ?Sized),
+    column: &(impl HostOrDeviceSlice<F> + ?Sized),
+    beta: &F,
+    gamma: &F,
+    delta_base: &F,
+    omega: &F,
+    len: u32,
+    config: &PermutationConfig,
+) -> Result<(), eIcicleError>
+where
+    F: FieldImpl,
+    <F as FieldImpl>::Config: PermutationOps<F>,
+{
+    <<F as FieldImpl>::Config as PermutationOps<F>>::permutation_numerator_accumulate(
+        modified,
+        column,
+        beta,
+        gamma,
+        delta_base,
+        omega,
+        len,
+        config,
     )
 }
 
@@ -164,6 +235,29 @@ macro_rules! impl_permutation_ops {
                     config: *const PermutationConfig,
                     results: *mut $field,
                 ) -> eIcicleError;
+
+                #[link_name = concat!($field_prefix, "_permutation_denominator")]
+                pub(crate) fn permutation_denominator_ffi(
+                    modified: *mut $field,
+                    column: *const $field,
+                    permuted: *const $field,
+                    len: u32,
+                    beta: $field,
+                    gamma: $field,
+                    config: *const PermutationConfig,
+                ) -> eIcicleError;
+
+                #[link_name = concat!($field_prefix, "_permutation_numerator")]
+                pub(crate) fn permutation_numerator_ffi(
+                    modified: *mut $field,
+                    column: *const $field,
+                    len: u32,
+                    beta: $field,
+                    gamma: $field,
+                    delta_base: $field,
+                    omega: $field,
+                    config: *const PermutationConfig,
+                ) -> eIcicleError;
             }
         }
 
@@ -178,6 +272,54 @@ macro_rules! impl_permutation_ops {
                         perm_data as *const icicle_core::permutation_ops::PermutationData<$field>,
                         config as *const icicle_core::permutation_ops::PermutationConfig,
                         results.as_mut_ptr(),
+                    )
+                    .wrap()
+                }
+            }
+
+            fn permutation_denominator_accumulate(
+                modified: &mut (impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+                column: &(impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+                permuted: &(impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+                beta: &$field,
+                gamma: &$field,
+                len: u32,
+                config: &icicle_core::permutation_ops::PermutationConfig,
+            ) -> Result<(), icicle_runtime::errors::eIcicleError> {
+                unsafe {
+                    $field_prefix_ident::permutation_denominator_ffi(
+                        modified.as_mut_ptr(),
+                        column.as_ptr(),
+                        permuted.as_ptr(),
+                        len,
+                        *beta,
+                        *gamma,
+                        config as *const icicle_core::permutation_ops::PermutationConfig,
+                    )
+                    .wrap()
+                }
+            }
+
+            fn permutation_numerator_accumulate(
+                modified: &mut (impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+                column: &(impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+                beta: &$field,
+                gamma: &$field,
+                delta_base: &$field,
+                omega: &$field,
+                len: u32,
+                config: &icicle_core::permutation_ops::PermutationConfig,
+            ) -> Result<(), icicle_runtime::errors::eIcicleError> {
+                unsafe {
+                    $field_prefix_ident::permutation_numerator_ffi(
+                        modified.as_mut_ptr(),
+                        column.as_ptr(),
+                        len,
+                        *beta,
+                        *gamma,
+                        *delta_base,
+                        *omega,
+                        config as *const icicle_core::permutation_ops::PermutationConfig,
                     )
                     .wrap()
                 }
