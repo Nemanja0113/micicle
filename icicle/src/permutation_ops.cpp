@@ -118,5 +118,39 @@ namespace icicle {
     );
   }
 
+  ICICLE_DISPATCHER_INST(PermutationPrefixDispatcher, permutation_prefix, permutationPrefixImpl);
+
+  extern "C" eIcicleError CONCAT_EXPAND(ICICLE_FFI_PREFIX, permutation_prefix)(
+    const scalar_t* fractions,
+    scalar_t* output,
+    uint32_t len,
+    scalar_t last_z,
+    const PermutationConfig* config)
+  {
+    return PermutationPrefixDispatcher::execute(
+      fractions,
+      output,
+      len,
+      last_z,
+      *config
+    );
+  }
+
+  eIcicleError permutation_prefix_product(
+    const scalar_t* fractions,
+    scalar_t* output,
+    uint32_t len,
+    scalar_t last_z,
+    const PermutationConfig& config)
+  {
+    return CONCAT_EXPAND(ICICLE_FFI_PREFIX, permutation_prefix)(
+      fractions,
+      output,
+      len,
+      last_z,
+      &config
+    );
+  }
+
 } // namespace icicle
 

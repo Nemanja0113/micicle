@@ -65,5 +65,23 @@ namespace icicle {
     }();                                                                                               \
   }
 
+  using permutationPrefixImpl = std::function<eIcicleError(
+    const Device& device,
+    const scalar_t* fractions,
+    scalar_t* output,
+    uint32_t len,
+    scalar_t last_z,
+    const PermutationConfig& config)>;
+
+  void register_permutation_prefix(const std::string& deviceType, permutationPrefixImpl impl);
+
+#define REGISTER_PERMUTATION_PREFIX_BACKEND(DEVICE_TYPE, FUNC)                                         \
+  namespace {                                                                                          \
+    static bool UNIQUE(_reg_permutation_prefix) = []() -> bool {                                       \
+      register_permutation_prefix(DEVICE_TYPE, FUNC);                                                  \
+      return true;                                                                                     \
+    }();                                                                                               \
+  }
+
 } // namespace icicle
 

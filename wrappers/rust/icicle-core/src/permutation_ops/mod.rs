@@ -146,6 +146,14 @@ pub trait PermutationOps<F: FieldImpl> {
         len: u32,
         config: &PermutationConfig,
     ) -> Result<(), eIcicleError>;
+
+    fn permutation_prefix_product(
+        fractions: &(impl HostOrDeviceSlice<F> + ?Sized),
+        output: &mut (impl HostOrDeviceSlice<F> + ?Sized),
+        last_z: &F,
+        len: u32,
+        config: &PermutationConfig,
+    ) -> Result<(), eIcicleError>;
 }
 
 // Standalone function that delegates to the trait method
@@ -215,6 +223,26 @@ where
     )
 }
 
+pub fn permutation_prefix_product<F>(
+    fractions: &(impl HostOrDeviceSlice<F> + ?Sized),
+    output: &mut (impl HostOrDeviceSlice<F> + ?Sized),
+    last_z: &F,
+    len: u32,
+    config: &PermutationConfig,
+) -> Result<(), eIcicleError>
+where
+    F: FieldImpl,
+    <F as FieldImpl>::Config: PermutationOps<F>,
+{
+    <<F as FieldImpl>::Config as PermutationOps<F>>::permutation_prefix_product(
+        fractions,
+        output,
+        last_z,
+        len,
+        config,
+    )
+}
+
 #[macro_export]
 macro_rules! impl_permutation_ops {
     (
@@ -256,6 +284,15 @@ macro_rules! impl_permutation_ops {
                     gamma: $field,
                     delta_base: $field,
                     omega: $field,
+                    config: *const PermutationConfig,
+                ) -> eIcicleError;
+
+                #[link_name = concat!($field_prefix, "_permutation_prefix")]
+                pub(crate) fn permutation_prefix_ffi(
+                    fractions: *const $field,
+                    output: *mut $field,
+                    len: u32,
+                    last_z: $field,
                     config: *const PermutationConfig,
                 ) -> eIcicleError;
             }
@@ -319,6 +356,25 @@ macro_rules! impl_permutation_ops {
                         *gamma,
                         *delta_base,
                         *omega,
+                        config as *const icicle_core::permutation_ops::PermutationConfig,
+                    )
+                    .wrap()
+                }
+            }
+
+            fn permutation_prefix_product(
+                fractions: &(impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+                output: &mut (impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
+                last_z: &$field,
+                len: u32,
+                config: &icicle_core::permutation_ops::PermutationConfig,
+            ) -> Result<(), icicle_runtime::errors::eIcicleError> {
+                unsafe {
+                    $field_prefix_ident::permutation_prefix_ffi(
+                        fractions.as_ptr(),
+                        output.as_mut_ptr(),
+                        len,
+                        *last_z,
                         config as *const icicle_core::permutation_ops::PermutationConfig,
                     )
                     .wrap()

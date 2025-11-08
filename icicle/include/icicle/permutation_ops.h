@@ -82,5 +82,14 @@ namespace icicle {
     const PermutationConfig& config
   );
 
+  template <typename T>
+  eIcicleError permutation_prefix_product(
+    const T* fractions,
+    T* output,
+    uint32_t len,
+    T last_z,
+    const PermutationConfig& config
+  );
+
 } // namespace icicle
 
