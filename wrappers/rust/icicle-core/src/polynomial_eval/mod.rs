@@ -1,4 +1,3 @@
-'use'
 use crate::traits::FieldImpl;
 use icicle_runtime::{errors::eIcicleError, memory::HostOrDeviceSlice, stream::IcicleStreamHandle};
 use std::ptr;
