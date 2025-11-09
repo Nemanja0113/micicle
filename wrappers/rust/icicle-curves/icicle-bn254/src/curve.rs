@@ -19,7 +19,7 @@ impl_curve!("bn254", bn254, CurveCfg, ScalarField, BaseField, G1Affine, G1Projec
 
 // Implement permutation operations for BN254 scalar field
 impl_permutation_ops!("bn254", bn254_perm, ScalarField, ScalarCfg);
-icicle_core::polynomial_eval::impl_polynomial_eval_ops!("bn254", ScalarField, ScalarCfg);
+icicle_core::impl_polynomial_eval_ops!("bn254", ScalarField, ScalarCfg);
 
 #[cfg(not(feature = "no_g2"))]
 impl_field!("bn254_g2_base_field", G2_BASE_LIMBS, G2BaseField, G2BaseCfg);
