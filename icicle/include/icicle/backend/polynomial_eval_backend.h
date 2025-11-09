@@ -4,8 +4,11 @@
 #include <string>
 #include "icicle/polynomial_eval.h"
 #include "icicle/device.h"
+#include "icicle/fields/field_config.h"
 
 namespace icicle {
+
+using field_config::scalar_t;
 
 using polynomialEvalImpl = std::function<eIcicleError(
     const Device& device,

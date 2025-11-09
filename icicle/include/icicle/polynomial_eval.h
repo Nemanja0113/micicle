@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "errors.h"
 #include "runtime.h"
-#include "icicle/fields/field.h"
+#include "icicle/fields/field_config.h"
 
 namespace icicle {
 
@@ -12,11 +12,12 @@ struct PolyEvalBatchConfig {
   bool is_async{false};
 };
 
+template <typename T>
 struct PolyEvalBatch {
-  const T* coeffs;      // concatenated coefficients
-  const uint32_t* offsets; // start index per polynomial
-  const uint32_t* lengths; // number of coefficients per polynomial
-  const T* eval_points;    // evaluation point per polynomial
+  const T* coeffs;
+  const uint32_t* offsets;
+  const uint32_t* lengths;
+  const T* eval_points;
   uint32_t num_polys;
   PolyEvalBatchConfig config;
 };
