@@ -1,3 +1,4 @@
+'use'
 use crate::traits::FieldImpl;
 use icicle_runtime::{errors::eIcicleError, memory::HostOrDeviceSlice, stream::IcicleStreamHandle};
 use std::ptr;
@@ -70,34 +71,30 @@ where
 
 #[macro_export]
 macro_rules! impl_polynomial_eval_ops {
-    ($field_prefix:literal, $field_prefix_ident:ident, $field:ident, $field_config:ident) => {
-        mod $field_prefix_ident {
-            use super::{$field, $field_config};
-            use icicle_core::polynomial_eval::{PolyEvalBatch, PolyEvalBatchConfig};
-            use icicle_runtime::{errors::eIcicleError, memory::HostOrDeviceSlice};
+    ($field_prefix:literal, $field:ident, $field_config:ident) => {
+        const _: () = {
+            use icicle_core::polynomial_eval::PolyEvalBatch;
+            use icicle_runtime::errors::eIcicleError;
+            use icicle_runtime::memory::HostOrDeviceSlice;
 
             extern "C" {
                 #[link_name = concat!($field_prefix, "_polynomial_eval")]
-                pub(crate) fn polynomial_eval_ffi(
+                fn polynomial_eval_ffi(
                     batch: *const PolyEvalBatch<$field>,
                     results: *mut $field,
                 ) -> eIcicleError;
             }
-        }
 
-        impl icicle_core::polynomial_eval::PolynomialEvalOps<$field> for $field_config {
-            fn polynomial_eval(
-                batch: &icicle_core::polynomial_eval::PolyEvalBatch<$field>,
-                results: &mut (impl icicle_runtime::memory::HostOrDeviceSlice<$field> + ?Sized),
-            ) -> Result<(), icicle_runtime::errors::eIcicleError> {
-                unsafe {
-                    $field_prefix_ident::polynomial_eval_ffi(
-                        batch as *const icicle_core::polynomial_eval::PolyEvalBatch<$field>,
-                        results.as_mut_ptr(),
-                    )
-                    .wrap()
+            impl icicle_core::polynomial_eval::PolynomialEvalOps<$field> for $field_config {
+                fn polynomial_eval(
+                    batch: &PolyEvalBatch<$field>,
+                    results: &mut (impl HostOrDeviceSlice<$field> + ?Sized),
+                ) -> Result<(), eIcicleError> {
+                    unsafe {
+                        polynomial_eval_ffi(batch as *const _, results.as_mut_ptr()).wrap()
+                    }
                 }
             }
-        }
+        };
     };
 }

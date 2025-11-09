@@ -398,12 +398,7 @@ macro_rules! impl_scalar_field {
             }
         }
 
-        icicle_core::polynomial_eval::impl_polynomial_eval_ops!(
-            $field_prefix,
-            $field_prefix_ident,
-            $field_name,
-            $field_cfg
-        );
+        icicle_core::polynomial_eval::impl_polynomial_eval_ops!($field_prefix, $field_name, $field_cfg);
     };
 }
 
