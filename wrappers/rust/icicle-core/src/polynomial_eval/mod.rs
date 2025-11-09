@@ -1,11 +1,21 @@
 use crate::traits::FieldImpl;
 use icicle_runtime::{errors::eIcicleError, memory::HostOrDeviceSlice, stream::IcicleStreamHandle};
+use std::ptr;
 
 #[repr(C)]
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy)]
 pub struct PolyEvalBatchConfig {
     pub stream_handle: IcicleStreamHandle,
     pub is_async: bool,
+}
+
+impl Default for PolyEvalBatchConfig {
+    fn default() -> Self {
+        Self {
+            stream_handle: ptr::null_mut(),
+            is_async: false,
+        }
+    }
 }
 
 #[repr(C)]
